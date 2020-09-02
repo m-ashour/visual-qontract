@@ -3,9 +3,13 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 
 import Page from '../components/Page';
+import PermissionDeniedPage from './PermissionDeniedPage';
 import Notifications from './elements/Notifications';
 import Notification from './elements/Notification';
 import NewNotification from './elements/NewNotification';
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 const GET_NOTIFICATION = gql`
   query Notification($path: String) {
@@ -77,10 +81,19 @@ const NotificationsPage = ({ location }) => {
   }
 
   return (
+
     <Query query={GET_NOTIFICATIONS}>
       {({ loading, error, data }) => {
         if (loading) return 'Loading...';
         if (error) return `Error! ${error.message}`;
+
+        const username = cookies.get('github-oauth-user')
+        const email = cookies.get('github-oauth-email')
+        console.log("notifications page:", username, email);
+
+        // if (username === "user-name") {
+        //   return PermissionDeniedPage;
+        // }
 
         const body = <Notifications notifications={data.app_interface_emails_v1} />;
         return <Page title="Notifications" body={body} create={{"hash": "create", "path":"/notifications", "label": "Create a new notification"}}/>;
